@@ -7,8 +7,8 @@
 | Your Name   | API Gateway + Setup| feature/api-gateway       |
 | Deranindu   | Guest Service      | feature/guest-service     |
 | Rashini     | Room Service       | feature/room-service      |
-| Santhu      | Booking Service    | feature/booking-service   |
-| Sadee       | Payment Service    | feature/payment-service   |
+| Kavindu      | Booking Service    | feature/booking-service   |
+| Sadeepa       | Payment Service    | feature/payment-service   |
 | Malshan     | Restaurant Service | feature/restaurant-service|
 | Raveen      | Staff Service      | feature/staff-service     |
 
