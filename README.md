@@ -1,4 +1,4 @@
-# 🏨 Hotel Management Microservices
+#  Hotel Management Microservices
 **IT4020 — Modern Topics in IT | Assignment 2 | 2026**
 
 ## Team
