@@ -4,8 +4,7 @@
 ## Team
 | Member      | Service            | Branch                    |
 |-------------|--------------------|---------------------------|
-| Your Name   | API Gateway + Setup| feature/api-gateway       |
-| Deranindu   | Guest Service      | feature/guest-service     |
+| Deranindu   | Guest Service  API Gateway + Setup    | feature/guest-service | feature/api-gateway    |
 | Rashini     | Room Service       | feature/room-service      |
 | Kavindu      | Booking Service    | feature/booking-service   |
 | Sadeepa       | Payment Service    | feature/payment-service   |
