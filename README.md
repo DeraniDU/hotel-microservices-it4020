@@ -18,6 +18,13 @@ pip install -r requirements.txt
 uvicorn main:app --reload --port 8001
 ```
 
+## Running Staff Service
+```bash
+cd staff-service
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8006
+```
+
 ## Running the API Gateway
 ```bash
 cd api-gateway
