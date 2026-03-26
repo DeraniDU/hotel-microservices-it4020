@@ -152,12 +152,19 @@ async def get_booking_by_booking_code(booking_code: str):
 
 @app.put("/bookings/{booking_id}", tags=["Bookings"])
 async def update_booking(booking_id: str, data: BookingUpdate):
-    object_id = parse_object_id(booking_id)
     update_data = {k: v for k, v in data.model_dump(mode="python").items() if v is not None}
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields to update")
 
-    existing = await booking_collection.find_one({"_id": object_id})
+    query = {}
+    object_id = None
+    try:
+        object_id = ObjectId(booking_id)
+        query = {"_id": object_id}
+    except InvalidId:
+        query = {"booking_id": booking_id}
+
+    existing = await booking_collection.find_one(query)
     if not existing:
         raise HTTPException(status_code=404, detail="Booking not found")
 
@@ -180,22 +187,28 @@ async def update_booking(booking_id: str, data: BookingUpdate):
         )
 
     room_id = update_data.get("room_id", existing["room_id"])
-    if await has_room_conflict(room_id, check_in, check_out, exclude_id=object_id):
+    conflict_exclude_id = existing["_id"]
+    if await has_room_conflict(room_id, check_in, check_out, exclude_id=conflict_exclude_id):
         raise HTTPException(
             status_code=409,
             detail="Room is already booked for the selected date/time range",
         )
 
     update_data["updated_at"] = datetime.now(timezone.utc)
-    await booking_collection.update_one({"_id": object_id}, {"$set": update_data})
-    updated = await booking_collection.find_one({"_id": object_id})
+    await booking_collection.update_one(query, {"$set": update_data})
+    updated = await booking_collection.find_one({"_id": existing["_id"]})
     return booking_serializer(updated)
 
 
 @app.delete("/bookings/{booking_id}", tags=["Bookings"])
 async def delete_booking(booking_id: str):
-    object_id = parse_object_id(booking_id)
-    result = await booking_collection.delete_one({"_id": object_id})
+    query = {}
+    try:
+        query = {"_id": ObjectId(booking_id)}
+    except InvalidId:
+        query = {"booking_id": booking_id}
+
+    result = await booking_collection.delete_one(query)
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Booking not found")
     return {"message": f"Booking {booking_id} deleted successfully"}
