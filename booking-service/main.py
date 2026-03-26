@@ -130,8 +130,13 @@ async def get_all_bookings(
 
 @app.get("/bookings/{booking_id}", tags=["Bookings"])
 async def get_booking(booking_id: str):
-    object_id = parse_object_id(booking_id)
-    booking = await booking_collection.find_one({"_id": object_id})
+    booking = None
+    try:
+        object_id = ObjectId(booking_id)
+        booking = await booking_collection.find_one({"_id": object_id})
+    except InvalidId:
+        booking = await booking_collection.find_one({"booking_id": booking_id})
+
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
     return booking_serializer(booking)
