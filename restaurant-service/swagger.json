@@ -1,0 +1,217 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Restaurant API",
+    "version": "1.0.0",
+    "description": "Microservice for Restaurant Menu Operations. Created by Malshan."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8005",
+      "description": "Local server"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "MenuItem": {
+        "type": "object",
+        "required": [
+          "name",
+          "price"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The auto-generated id of the menu item"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the menu item"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the menu item"
+          },
+          "price": {
+            "type": "number",
+            "description": "The price of the menu item"
+          },
+          "isAvailable": {
+            "type": "boolean",
+            "description": "Availability status"
+          }
+        },
+        "example": {
+          "id": 1,
+          "name": "Margherita Pizza",
+          "description": "Classic cheese and tomato pizza",
+          "price": 12.99,
+          "isAvailable": true
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Menu",
+      "description": "The restaurant menu managing API"
+    }
+  ],
+  "paths": {
+    "/api/restaurant/menu": {
+      "get": {
+        "summary": "Returns the list of all menu items",
+        "tags": [
+          "Menu"
+        ],
+        "responses": {
+          "200": {
+            "description": "The list of the menu items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MenuItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new menu item",
+        "tags": [
+          "Menu"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuItem"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The menu item was successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuItem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Some server error"
+          }
+        }
+      }
+    },
+    "/api/restaurant/menu/{id}": {
+      "get": {
+        "summary": "Get a menu item by id",
+        "tags": [
+          "Menu"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "The menu item id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The menu item description by id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuItem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The menu item was not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a menu item by id",
+        "tags": [
+          "Menu"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "The menu item id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuItem"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The menu item was updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuItem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The menu item was not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove the menu item by id",
+        "tags": [
+          "Menu"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "The menu item id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The menu item was deleted"
+          },
+          "404": {
+            "description": "The menu item was not found"
+          }
+        }
+      }
+    }
+  }
+}
