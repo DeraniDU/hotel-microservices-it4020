@@ -64,19 +64,27 @@ async def health_check():
     return {"gateway": "online", "services": status}
 
 @app.api_route(
+    "/{service}",
+    methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
+    tags=["Proxy"],
+    summary="Route request to the appropriate microservice root",
+)
+@app.api_route(
     "/{service}/{path:path}",
     methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
     tags=["Proxy"],
     summary="Route request to the appropriate microservice",
 )
-async def proxy(service: str, path: str, request: Request):
+async def proxy(service: str, request: Request, path: str = ""):
     if service not in SERVICES:
         raise HTTPException(
             status_code=404,
             detail=f"Service '{service}' not found. Available: {list(SERVICES.keys())}"
         )
 
-    target_url = f"{SERVICES[service]}/{path}"
+    # If no subpath is provided (e.g. /staff), forward to the service's
+    # resource root (/staff) instead of service root (/)
+    target_url = f"{SERVICES[service]}/{path}" if path else f"{SERVICES[service]}/{service}"
     if request.query_params:
         target_url += f"?{request.query_params}"
 
