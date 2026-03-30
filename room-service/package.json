@@ -1,0 +1,27 @@
+{
+  "name": "hotel-microservices-it4020",
+  "version": "1.0.0",
+  "description": "**IT4020 — Modern Topics in IT | Assignment 2 | 2026**",
+  "homepage": "https://github.com/DeraniDU/hotel-microservices-it4020#readme",
+  "bugs": {
+    "url": "https://github.com/DeraniDU/hotel-microservices-it4020/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DeraniDU/hotel-microservices-it4020.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "mongoose": "^9.3.1",
+    "nodemon": "^3.1.14"
+  }
+}
