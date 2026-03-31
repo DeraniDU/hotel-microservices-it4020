@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 import secrets
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from bson import ObjectId
@@ -66,7 +67,7 @@ async def has_room_conflict(
     room_id: str,
     check_in: datetime,
     check_out: datetime,
-    exclude_id: ObjectId | None = None,
+    exclude_id: Optional[ObjectId] = None,
 ) -> bool:
     query = {
         "room_id": room_id,
@@ -110,9 +111,9 @@ async def create_booking(booking: BookingCreate):
 
 @app.get("/bookings", tags=["Bookings"])
 async def get_all_bookings(
-    guest_id: str | None = Query(default=None),
-    room_id: str | None = Query(default=None),
-    status: str | None = Query(default=None),
+    guest_id: Optional[str] = Query(default=None),
+    room_id: Optional[str] = Query(default=None),
+    status: Optional[str] = Query(default=None),
 ):
     query = {}
     if guest_id:

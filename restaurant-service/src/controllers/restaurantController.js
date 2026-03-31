@@ -1,62 +1,94 @@
-const menuItems = require('../data/menuData');
+const Menu = require('../models/Menu');
 
 // Get all menu items
-exports.getAllMenuItems = (req, res) => {
-    res.json(menuItems);
+exports.getAllMenuItems = async (req, res) => {
+    try {
+        const items = await Menu.find().sort({ createdAt: -1 }).lean();
+        return res.json(items);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Server error' });
+    }
 };
 
-// Get single menu item by ID
-exports.getMenuItemById = (req, res) => {
-    const item = menuItems.find(i => i.id === parseInt(req.params.id));
-    if (!item) {
-        return res.status(404).send({ message: 'Menu item not found' });
+// Get single menu item by ID (tries numeric itemId first, then Mongo _id)
+exports.getMenuItemById = async (req, res) => {
+    try {
+        const param = req.params.id;
+        let item = null;
+        if (!isNaN(Number(param))) {
+            item = await Menu.findOne({ itemId: Number(param) }).lean();
+        }
+        if (!item) {
+            item = await Menu.findById(param).lean().catch(() => null);
+        }
+        if (!item) return res.status(404).send({ message: 'Menu item not found' });
+        return res.json(item);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Server error' });
     }
-    res.json(item);
 };
 
 // Add a new menu item
-exports.createMenuItem = (req, res) => {
-    const { name, description, price, isAvailable } = req.body;
-    
-    // Simple ID generator
-    const newId = menuItems.length > 0 ? Math.max(...menuItems.map(i => i.id)) + 1 : 1;
-    
-    const newItem = {
-        id: newId,
-        name,
-        description: description || '',
-        price: price || 0,
-        isAvailable: isAvailable !== undefined ? isAvailable : true
-    };
-    
-    menuItems.push(newItem);
-    res.status(201).json(newItem);
+exports.createMenuItem = async (req, res) => {
+    try {
+        const { name, description, price, isAvailable, id } = req.body;
+        // Determine itemId if provided or assign auto increment based on max itemId
+        let itemId = undefined;
+        if (id !== undefined) itemId = Number(id);
+        else {
+            const last = await Menu.findOne().sort({ itemId: -1 }).lean();
+            itemId = last && last.itemId ? last.itemId + 1 : 1;
+        }
+
+        const newItem = new Menu({
+            itemId,
+            name,
+            description: description || '',
+            price: price || 0,
+            isAvailable: isAvailable !== undefined ? isAvailable : true,
+        });
+
+        const saved = await newItem.save();
+        return res.status(201).json(saved);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Server error' });
+    }
 };
 
 // Update a menu item
-exports.updateMenuItem = (req, res) => {
-    const item = menuItems.find(i => i.id === parseInt(req.params.id));
-    if (!item) {
-        return res.status(404).send({ message: 'Menu item not found' });
+exports.updateMenuItem = async (req, res) => {
+    try {
+        const param = req.params.id;
+        let query = {};
+        if (!isNaN(Number(param))) query = { itemId: Number(param) };
+        else query = { _id: param };
+
+        const update = req.body;
+        const updated = await Menu.findOneAndUpdate(query, update, { new: true }).lean();
+        if (!updated) return res.status(404).json({ message: 'Menu item not found' });
+        return res.json(updated);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Server error' });
     }
-
-    const { name, description, price, isAvailable } = req.body;
-    
-    if (name !== undefined) item.name = name;
-    if (description !== undefined) item.description = description;
-    if (price !== undefined) item.price = price;
-    if (isAvailable !== undefined) item.isAvailable = isAvailable;
-
-    res.json(item);
 };
 
 // Delete a menu item
-exports.deleteMenuItem = (req, res) => {
-    const itemIndex = menuItems.findIndex(i => i.id === parseInt(req.params.id));
-    if (itemIndex === -1) {
-        return res.status(404).send({ message: 'Menu item not found' });
-    }
+exports.deleteMenuItem = async (req, res) => {
+    try {
+        const param = req.params.id;
+        let query = {};
+        if (!isNaN(Number(param))) query = { itemId: Number(param) };
+        else query = { _id: param };
 
-    menuItems.splice(itemIndex, 1);
-    res.send({ message: 'Menu item deleted successfully' });
+        const deleted = await Menu.findOneAndDelete(query).lean();
+        if (!deleted) return res.status(404).json({ message: 'Menu item not found' });
+        return res.json({ message: 'Menu item deleted successfully' });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Server error' });
+    }
 };

@@ -3,6 +3,10 @@ const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 const restaurantRoutes = require('./src/routes/restaurantRoutes');
+const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8005;
@@ -10,6 +14,25 @@ const PORT = process.env.PORT || 8005;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Connect to MongoDB
+const connectMongo = async () => {
+    try {
+        const mongoUrl = process.env.MONGO_URL;
+        const dbName = process.env.DATABASE_NAME;
+        let connStr = mongoUrl;
+        if (mongoUrl && dbName) {
+            if (mongoUrl.includes('/?')) connStr = mongoUrl.replace('/?', `/${dbName}?`);
+            else if (mongoUrl.endsWith('/')) connStr = `${mongoUrl}${dbName}`;
+            else connStr = `${mongoUrl}/${dbName}`;
+        }
+        await mongoose.connect(connStr, { useNewUrlParser: true, useUnifiedTopology: true });
+        console.log('MongoDB connected for restaurant-service');
+    } catch (err) {
+        console.error('MongoDB connection error (restaurant-service):', err.message);
+    }
+};
+connectMongo();
 
 // Main Root Endpoint
 app.get('/', (req, res) => {

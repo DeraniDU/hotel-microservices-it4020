@@ -19,6 +19,11 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
+
+// Health Endpoint - required for API Gateway
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "online", service: "room-service" });
+});
 app.use("/api/rooms", require("./routes/roomRoutes"));
 
 // Port

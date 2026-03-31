@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 import secrets
+from typing import Optional
 
 from bson import ObjectId
 from bson.errors import InvalidId
@@ -76,10 +77,10 @@ async def create_payment(payment: PaymentCreate):
 
 @app.get("/payments", tags=["Payments"])
 async def get_all_payments(
-    booking_id: str | None = Query(default=None),
-    guest_id: str | None = Query(default=None),
-    status: str | None = Query(default=None),
-    method: str | None = Query(default=None),
+    booking_id: Optional[str] = Query(default=None),
+    guest_id: Optional[str] = Query(default=None),
+    status: Optional[str] = Query(default=None),
+    method: Optional[str] = Query(default=None),
 ):
     query = {}
     if booking_id:
