@@ -132,13 +132,9 @@ def build_dashboard_html() -> str:
         framework_badge = f'<span class="badge badge-framework">{svc["framework"]}</span>'
         lang_badge = f'<span class="badge badge-lang">{svc["language"]}</span>'
         db_badge = f'<span class="badge badge-db">{svc["db"]}</span>'
-<<<<<<< HEAD
         docs_route = docs_routes.get(key, 'docs')
         docs_url = f"{svc['url']}/{docs_route}"
         gateway_route = f"http://localhost:8000/api/{docs_route}"
-=======
-        d_url = f"{svc['url']}{svc['docs_url']}"
->>>>>>> f9b35c0229d3cb1dbbcbd09725f8abe398ab5ada
         service_cards += f"""
         <div class="service-card" id="card-{key}" data-service="{key}">
             <div class="card-header" style="border-top:3px solid {svc['color']}">
@@ -165,13 +161,8 @@ def build_dashboard_html() -> str:
                     <button class="copy-btn" onclick="copyCmd('{key}')">Copy</button>
                 </div>
                 <div class="card-actions">
-<<<<<<< HEAD
                     <a href="{gateway_route}" target="_blank" class="btn btn-primary" style="background:{svc['color']}">Open via Gateway</a>
                     <a href="{docs_url}" target="_blank" class="btn btn-outline">📄 Docs</a>
-=======
-                    <a href="{d_url}" target="_blank" class="btn btn-primary" style="background:{svc['color']}">Open Service Docs</a>
-                    <a href="{svc['url']}" target="_blank" class="btn btn-outline">Direct Root</a>
->>>>>>> f9b35c0229d3cb1dbbcbd09725f8abe398ab5ada
                 </div>
             </div>
         </div>

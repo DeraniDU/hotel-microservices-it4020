@@ -14,21 +14,13 @@ app = FastAPI(
     title="Payment Service",
     description="Manages hotel payments - part of Hotel Microservices",
     version="1.0.0",
-<<<<<<< HEAD
     docs_url="/payment",
     openapi_url="/payment/openapi.json"
-=======
-    docs_url="/payment"
->>>>>>> f9b35c0229d3cb1dbbcbd09725f8abe398ab5ada
 )
 
 @app.get("/", include_in_schema=False)
 def root():
     return RedirectResponse(url="/payment")
-<<<<<<< HEAD
-
-=======
->>>>>>> f9b35c0229d3cb1dbbcbd09725f8abe398ab5ada
 
 def payment_serializer(payment) -> dict:
     return {

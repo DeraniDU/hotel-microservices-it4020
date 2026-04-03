@@ -19,11 +19,11 @@ app.use(express.json());
 
 // Sample route
 app.get("/", (req, res) => {
-<<<<<<< HEAD
+
   res.redirect("/room");
-=======
+
   res.redirect("/api-docs");
->>>>>>> f9b35c0229d3cb1dbbcbd09725f8abe398ab5ada
+
 });
 
 app.get("/rooms", (req, res) => {

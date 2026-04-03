@@ -20,12 +20,7 @@ app = FastAPI(
 
 @app.get("/", include_in_schema=False)
 def root():
-<<<<<<< HEAD
     return RedirectResponse(url="/booking")
-=======
-    return RedirectResponse(url="/docs")
->>>>>>> f9b35c0229d3cb1dbbcbd09725f8abe398ab5ada
-
 
 def booking_serializer(booking) -> dict:
     return {
