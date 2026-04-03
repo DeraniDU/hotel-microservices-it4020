@@ -20,6 +20,7 @@ SERVICES = {
         "color": "#6366f1",
         "icon": "👤",
         "start_cmd": "cd guest-service && python3 -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload",
+        "docs_url": "/docs",
     },
     "rooms": {
         "display_name": "Room Service",
@@ -32,6 +33,7 @@ SERVICES = {
         "color": "#10b981",
         "icon": "🛏️",
         "start_cmd": "cd room-service && npm start",
+        "docs_url": "/api-docs",
     },
     "bookings": {
         "display_name": "Booking Service",
@@ -44,6 +46,7 @@ SERVICES = {
         "color": "#f59e0b",
         "icon": "📅",
         "start_cmd": "cd booking-service && python3 -m uvicorn main:app --host 0.0.0.0 --port 8003 --reload",
+        "docs_url": "/docs",
     },
     "payments": {
         "display_name": "Payment Service",
@@ -56,6 +59,7 @@ SERVICES = {
         "color": "#ec4899",
         "icon": "💳",
         "start_cmd": "cd payment-service && python3 -m uvicorn main:app --host 0.0.0.0 --port 8004 --reload",
+        "docs_url": "/payment",
     },
     "restaurant": {
         "display_name": "Restaurant Service",
@@ -68,6 +72,7 @@ SERVICES = {
         "color": "#f97316",
         "icon": "🍽️",
         "start_cmd": "cd restaurant-service && npm start",
+        "docs_url": "/api-docs",
     },
     "staff": {
         "display_name": "Staff Service",
@@ -80,6 +85,7 @@ SERVICES = {
         "color": "#8b5cf6",
         "icon": "👷",
         "start_cmd": "cd staff-service && python3 -m uvicorn main:app --host 0.0.0.0 --port 8006 --reload",
+        "docs_url": "/docs",
     },
 }
 
@@ -117,7 +123,7 @@ def build_dashboard_html() -> str:
         framework_badge = f'<span class="badge badge-framework">{svc["framework"]}</span>'
         lang_badge = f'<span class="badge badge-lang">{svc["language"]}</span>'
         db_badge = f'<span class="badge badge-db">{svc["db"]}</span>'
-        docs_url = f"{svc['url']}/docs" if svc["language"] == "Python" else f"{svc['url']}/api-docs"
+        d_url = f"{svc['url']}{svc['docs_url']}"
         service_cards += f"""
         <div class="service-card" id="card-{key}" data-service="{key}">
             <div class="card-header" style="border-top:3px solid {svc['color']}">
@@ -144,8 +150,8 @@ def build_dashboard_html() -> str:
                     <button class="copy-btn" onclick="copyCmd('{key}')">Copy</button>
                 </div>
                 <div class="card-actions">
-                    <a href="http://localhost:8000/{key}" target="_blank" class="btn btn-primary" style="background:{svc['color']}">Open via Gateway</a>
-                    <a href="{docs_url}" target="_blank" class="btn btn-outline">📄 Docs</a>
+                    <a href="{d_url}" target="_blank" class="btn btn-primary" style="background:{svc['color']}">Open Service Docs</a>
+                    <a href="{svc['url']}" target="_blank" class="btn btn-outline">Direct Root</a>
                 </div>
             </div>
         </div>
