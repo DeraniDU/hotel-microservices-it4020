@@ -2,6 +2,8 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
 
 // Load env variables
 dotenv.config();
@@ -17,8 +19,21 @@ app.use(express.json());
 
 // Sample route
 app.get("/", (req, res) => {
-  res.send("API is running...");
+  res.redirect("/room");
 });
+
+app.get("/rooms", (req, res) => {
+  res.redirect("/room");
+});
+
+// Swagger API Documentation Route
+app.get('/room', (req, res, next) => {
+    if (!req.originalUrl.endsWith('/')) {
+        return res.redirect(301, req.originalUrl + '/');
+    }
+    next();
+});
+app.use('/room', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Health Endpoint - required for API Gateway
 app.get("/health", (req, res) => {

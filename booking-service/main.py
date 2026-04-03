@@ -3,6 +3,7 @@ import secrets
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import RedirectResponse
 from bson import ObjectId
 from bson.errors import InvalidId
 
@@ -13,7 +14,13 @@ app = FastAPI(
     title="Booking Service",
     description="Manages hotel bookings - part of Hotel Microservices",
     version="1.0.0",
+    docs_url="/booking",
+    openapi_url="/booking/openapi.json"
 )
+
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse(url="/booking")
 
 
 def booking_serializer(booking) -> dict:

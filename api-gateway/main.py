@@ -113,11 +113,22 @@ app.add_middleware(
 # ── Dashboard HTML ─────────────────────────────────────────────────────────────
 def build_dashboard_html() -> str:
     service_cards = ""
+    docs_routes = {
+        "guests": "guest",
+        "rooms": "room",
+        "bookings": "booking",
+        "payments": "payment",
+        "restaurant": "restaurant",
+        "staff": "staff"
+    }
+    
     for key, svc in SERVICES.items():
         framework_badge = f'<span class="badge badge-framework">{svc["framework"]}</span>'
         lang_badge = f'<span class="badge badge-lang">{svc["language"]}</span>'
         db_badge = f'<span class="badge badge-db">{svc["db"]}</span>'
-        docs_url = f"{svc['url']}/docs" if svc["language"] == "Python" else f"{svc['url']}/api-docs"
+        docs_route = docs_routes.get(key, 'docs')
+        docs_url = f"{svc['url']}/{docs_route}"
+        gateway_route = f"http://localhost:8000/api/{docs_route}"
         service_cards += f"""
         <div class="service-card" id="card-{key}" data-service="{key}">
             <div class="card-header" style="border-top:3px solid {svc['color']}">
@@ -144,7 +155,7 @@ def build_dashboard_html() -> str:
                     <button class="copy-btn" onclick="copyCmd('{key}')">Copy</button>
                 </div>
                 <div class="card-actions">
-                    <a href="http://localhost:8000/{key}" target="_blank" class="btn btn-primary" style="background:{svc['color']}">Open via Gateway</a>
+                    <a href="{gateway_route}" target="_blank" class="btn btn-primary" style="background:{svc['color']}">Open via Gateway</a>
                     <a href="{docs_url}" target="_blank" class="btn btn-outline">📄 Docs</a>
                 </div>
             </div>
@@ -617,23 +628,49 @@ async def health_check():
     "/{service}",
     methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
     tags=["Proxy"],
-    summary="Route request to the appropriate microservice root",
+    summary="Legacy route for microservice root",
 )
 @app.api_route(
     "/{service}/{path:path}",
     methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
     tags=["Proxy"],
+    summary="Legacy route for microservice assets",
+)
+@app.api_route(
+    "/api/{service}",
+    methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
+    tags=["Proxy"],
+    summary="Route request to the appropriate microservice root",
+)
+@app.api_route(
+    "/api/{service}/{path:path}",
+    methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
+    tags=["Proxy"],
     summary="Route request to the appropriate microservice",
 )
 async def proxy(service: str, request: Request, path: str = ""):
-    if service not in SERVICES:
+    ALIAS_ROUTES = {
+        "guest": "guests",
+        "room": "rooms",
+        "booking": "bookings",
+        "payment": "payments"
+    }
+    real_service = ALIAS_ROUTES.get(service, service)
+
+    if real_service not in SERVICES:
         raise HTTPException(
             status_code=404,
             detail=f"Service '{service}' not found. Available: {list(SERVICES.keys())}"
         )
 
-    svc_url = SERVICES[service]["url"]
-    target_url = f"{svc_url}/{service}/{path}" if path else f"{svc_url}/{service}"
+    svc_url = SERVICES[real_service]["url"]
+    
+    # We construct the target URL by stripping the "/api" prefix
+    incoming_path = request.url.path  
+    target_path = incoming_path[4:] if incoming_path.startswith("/api") else incoming_path
+    
+    target_url = f"{svc_url}{target_path}"
+    
     if request.query_params:
         target_url += f"?{request.query_params}"
 
@@ -647,23 +684,25 @@ async def proxy(service: str, request: Request, path: str = ""):
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
+            # We must override redirect-following so we can return 301/302 to the browser
             response = await client.request(
                 method=request.method,
                 url=target_url,
                 content=body,
                 headers=headers,
+                follow_redirects=False,
             )
-        # Try to parse as JSON; fall back to raw text so the gateway never
-        # crashes because of a non-JSON upstream response.
-        try:
-            content = response.json()
-            return JSONResponse(content=content, status_code=response.status_code)
-        except Exception:
-            from fastapi.responses import PlainTextResponse
-            return PlainTextResponse(
-                content=response.text,
-                status_code=response.status_code,
-            )
+            
+        from fastapi import Response
+        res_headers = dict(response.headers)
+        res_headers.pop("content-encoding", None)
+        res_headers.pop("content-length", None)
+        
+        return Response(
+            content=response.content,
+            status_code=response.status_code,
+            headers=res_headers
+        )
     except httpx.ConnectError:
         raise HTTPException(
             status_code=503,

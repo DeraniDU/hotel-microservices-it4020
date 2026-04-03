@@ -5,6 +5,7 @@ from typing import Optional
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import RedirectResponse
 
 from database import payment_collection
 from models import PaymentCreate, PaymentUpdate
@@ -13,7 +14,13 @@ app = FastAPI(
     title="Payment Service",
     description="Manages hotel payments - part of Hotel Microservices",
     version="1.0.0",
+    docs_url="/payment",
+    openapi_url="/payment/openapi.json"
 )
+
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse(url="/payment")
 
 
 def payment_serializer(payment) -> dict:
