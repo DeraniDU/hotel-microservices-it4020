@@ -15,7 +15,11 @@ app = FastAPI(
 
 @app.get("/", include_in_schema=False)
 def root():
+<<<<<<< HEAD
     return RedirectResponse(url="/staff")
+=======
+    return RedirectResponse(url="/docs")
+>>>>>>> f9b35c0229d3cb1dbbcbd09725f8abe398ab5ada
 
 def parse_object_id(value: str) -> ObjectId:
     """Convert MongoDB ObjectId safely to avoid 500s on invalid IDs."""

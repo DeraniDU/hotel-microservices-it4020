@@ -14,7 +14,11 @@ app = FastAPI(
 
 @app.get("/", include_in_schema=False)
 def root():
+<<<<<<< HEAD
     return RedirectResponse(url="/guest")
+=======
+    return RedirectResponse(url="/docs")
+>>>>>>> f9b35c0229d3cb1dbbcbd09725f8abe398ab5ada
 
 # Helper to convert MongoDB _id to string
 def guest_serializer(guest) -> dict:
