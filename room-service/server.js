@@ -19,11 +19,7 @@ app.use(express.json());
 
 // Sample route
 app.get("/", (req, res) => {
-
   res.redirect("/room");
-
-  res.redirect("/api-docs");
-
 });
 
 app.get("/rooms", (req, res) => {
@@ -43,16 +39,6 @@ app.use('/room', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "online", service: "room-service" });
 });
-
-// Swagger API Documentation
-const options = {};
-app.get('/api-docs', (req, res, next) => {
-    if (!req.originalUrl.endsWith('/')) {
-        return res.redirect(301, req.originalUrl + '/');
-    }
-    next();
-});
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
 app.use("/api/rooms", require("./routes/roomRoutes"));
 

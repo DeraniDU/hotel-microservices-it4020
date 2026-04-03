@@ -36,11 +36,7 @@ connectMongo();
 
 // Main Root Endpoint
 app.get('/', (req, res) => {
-
     res.redirect('/restaurant');
-
-    res.redirect('/api-docs');
-
 });
 
 // Health Endpoint — required for API Gateway
@@ -49,19 +45,13 @@ app.get('/health', (req, res) => {
 });
 
 // Swagger API Documentation Route
-
 app.get('/restaurant', (req, res, next) => {
-
-app.get('/api-docs', (req, res, next) => {
-
     if (!req.originalUrl.endsWith('/')) {
         return res.redirect(301, req.originalUrl + '/');
     }
     next();
 });
 app.use('/restaurant', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 // Restaurant API Routes
