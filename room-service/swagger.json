@@ -1,0 +1,148 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Room Service API",
+    "version": "1.0.0",
+    "description": "Microservice for managing hotel rooms."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8002",
+      "description": "Local server"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Room": {
+        "type": "object",
+        "required": [
+          "type",
+          "price"
+        ],
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Generated _id"
+          },
+          "roomNumber": {
+            "type": "string",
+            "description": "Auto-generated room number"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["Single", "Double", "Suite"]
+          },
+          "price": {
+            "type": "number"
+          },
+          "isAvailable": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Rooms",
+      "description": "Room management"
+    }
+  ],
+  "paths": {
+    "/api/rooms/getrooms": {
+      "get": {
+        "summary": "Returns the list of all rooms",
+        "tags": ["Rooms"],
+        "responses": {
+          "200": {
+            "description": "Rooms list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Room"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rooms/addroom": {
+      "post": {
+        "summary": "Create a new room",
+        "tags": ["Rooms"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Room"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The room was created"
+          }
+        }
+      }
+    },
+    "/api/rooms/getsingleroom/{id}": {
+      "get": {
+        "summary": "Get room by id",
+        "tags": ["Rooms"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true
+          }
+        ],
+        "responses": { "200": { "description": "Room details" } }
+      }
+    },
+    "/api/rooms/updateroom/{id}": {
+      "put": {
+        "summary": "Update room by id",
+        "tags": ["Rooms"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Room" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated room" } }
+      }
+    },
+    "/api/rooms/droproom/{id}": {
+      "delete": {
+        "summary": "Delete room by id",
+        "tags": ["Rooms"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true
+          }
+        ],
+        "responses": { "200": { "description": "Deleted room" } }
+      }
+    }
+  }
+}

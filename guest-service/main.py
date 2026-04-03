@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 from bson import ObjectId
 from database import guest_collection
 from models import GuestCreate, GuestUpdate
@@ -8,6 +9,10 @@ app = FastAPI(
     description="Manages hotel guests — part of Hotel Microservices",
     version="1.0.0"
 )
+
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse(url="/docs")
 
 # Helper to convert MongoDB _id to string
 def guest_serializer(guest) -> dict:

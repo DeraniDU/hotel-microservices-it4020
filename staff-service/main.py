@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 from bson import ObjectId
 
 from database import staff_collection
@@ -9,6 +10,10 @@ app = FastAPI(
     description="Manages hotel staff — part of Hotel Microservices",
     version="1.0.0",
 )
+
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse(url="/docs")
 
 def parse_object_id(value: str) -> ObjectId:
     """Convert MongoDB ObjectId safely to avoid 500s on invalid IDs."""
