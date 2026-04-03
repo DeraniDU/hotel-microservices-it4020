@@ -30,25 +30,36 @@ def health():
 # ── CREATE ────────────────────────────────────────────────
 @app.post("/guests", status_code=201, tags=["Guests"])
 async def create_guest(guest: GuestCreate):
-    result = await guest_collection.insert_one(guest.dict())
-    new_guest = await guest_collection.find_one({"_id": result.inserted_id})
-    return guest_serializer(new_guest)
+    try:
+        result = await guest_collection.insert_one(guest.dict())
+        new_guest = await guest_collection.find_one({"_id": result.inserted_id})
+        return guest_serializer(new_guest)
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Database connection error: {type(e).__name__} - {str(e)}")
 
 # ── READ ALL ──────────────────────────────────────────────
 @app.get("/guests", tags=["Guests"])
 async def get_all_guests():
     guests = []
-    async for guest in guest_collection.find():
-        guests.append(guest_serializer(guest))
+    try:
+        async for guest in guest_collection.find():
+            guests.append(guest_serializer(guest))
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Database connection error: {type(e).__name__} - {str(e)}")
     return guests
 
 # ── READ ONE ──────────────────────────────────────────────
 @app.get("/guests/{guest_id}", tags=["Guests"])
 async def get_guest(guest_id: str):
-    guest = await guest_collection.find_one({"_id": ObjectId(guest_id)})
-    if not guest:
-        raise HTTPException(status_code=404, detail="Guest not found")
-    return guest_serializer(guest)
+    try:
+        guest = await guest_collection.find_one({"_id": ObjectId(guest_id)})
+        if not guest:
+            raise HTTPException(status_code=404, detail="Guest not found")
+        return guest_serializer(guest)
+    except Exception as e:
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=503, detail=f"Database connection error: {type(e).__name__} - {str(e)}")
 
 # ── UPDATE ────────────────────────────────────────────────
 @app.put("/guests/{guest_id}", tags=["Guests"])
