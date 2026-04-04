@@ -29,21 +29,16 @@ const roomSchema = new mongoose.Schema({
   }
 });
 
-roomSchema.pre("validate", async function (next) {
-  try {
-    if (this.isNew && !this.roomNumber) {
-      const counter = await Counter.findOneAndUpdate(
-        { id: "room" },
-        { $inc: { seq: 1 } },
-        { new: true, upsert: true }
-      );
+roomSchema.pre("validate", async function () {
+  if (this.isNew && !this.roomNumber) {
+    const counter = await Counter.findOneAndUpdate(
+      { id: "room" },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
 
-      const seq = counter.seq || 1;
-      this.roomNumber = `RM_${String(seq).padStart(3, "0")}`;
-    }
-    next();
-  } catch (err) {
-    next(err);
+    const seq = counter.seq || 1;
+    this.roomNumber = `RM_${String(seq).padStart(3, "0")}`;
   }
 });
 
