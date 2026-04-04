@@ -672,10 +672,18 @@ async def proxy(service: str, request: Request, path: str = ""):
 
     svc_url = SERVICES[real_service]["url"]
     
-    # We construct the target URL by stripping the "/api" prefix
-    incoming_path = request.url.path  
-    target_path = incoming_path[4:] if incoming_path.startswith("/api") else incoming_path
-    
+    # We construct the target URL. Some services (Express apps)
+    # expose their API under the `/api` prefix, so preserve it
+    # for those frameworks. For others (FastAPI), strip `/api`.
+    incoming_path = request.url.path
+    if incoming_path.startswith("/api"):
+      if SERVICES[real_service].get("framework", "").lower() == "express":
+        target_path = incoming_path
+      else:
+        target_path = incoming_path[4:]
+    else:
+      target_path = incoming_path
+
     target_url = f"{svc_url}{target_path}"
     
     if request.query_params:
