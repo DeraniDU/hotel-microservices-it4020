@@ -49,14 +49,14 @@ def health_prefixed():
     return {"status": "online", "service": "staff-service"}
 
 
-@app.post("/staff", status_code=201, tags=["Staff"])
+@app.post("/staffs", status_code=201, tags=["Staff"])
 async def create_staff(staff: StaffCreate):
     result = await staff_collection.insert_one(staff.dict())
     new_staff = await staff_collection.find_one({"_id": result.inserted_id})
     return staff_serializer(new_staff)
 
 
-@app.get("/staff", tags=["Staff"])
+@app.get("/staffs", tags=["Staff"])
 async def get_all_staff():
     staff_list = []
     async for s in staff_collection.find():
@@ -64,7 +64,7 @@ async def get_all_staff():
     return staff_list
 
 
-@app.get("/staff/{staff_id}", tags=["Staff"])
+@app.get("/staffs/{staff_id}", tags=["Staff"])
 async def get_staff(staff_id: str):
     staff = await staff_collection.find_one({"_id": parse_object_id(staff_id)})
     if not staff:
@@ -72,7 +72,7 @@ async def get_staff(staff_id: str):
     return staff_serializer(staff)
 
 
-@app.put("/staff/{staff_id}", tags=["Staff"])
+@app.put("/staffs/{staff_id}", tags=["Staff"])
 async def update_staff(staff_id: str, data: StaffUpdate):
     # Remove None fields — only update what's provided.
     update_data = {k: v for k, v in data.dict().items() if v is not None}
@@ -90,7 +90,7 @@ async def update_staff(staff_id: str, data: StaffUpdate):
     return staff_serializer(updated)
 
 
-@app.delete("/staff/{staff_id}", tags=["Staff"])
+@app.delete("/staffs/{staff_id}", tags=["Staff"])
 async def delete_staff(staff_id: str):
     result = await staff_collection.delete_one({"_id": parse_object_id(staff_id)})
     if result.deleted_count == 0:

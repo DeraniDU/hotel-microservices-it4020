@@ -659,7 +659,8 @@ async def proxy(service: str, request: Request, path: str = ""):
         "guest": "guests",
         "room": "rooms",
         "booking": "bookings",
-        "payment": "payments"
+        "payment": "payments",
+        "staffs": "staff"
     }
     real_service = ALIAS_ROUTES.get(service, service)
 
