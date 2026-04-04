@@ -134,7 +134,7 @@ def build_dashboard_html() -> str:
         db_badge = f'<span class="badge badge-db">{svc["db"]}</span>'
         docs_route = docs_routes.get(key, 'docs')
         docs_url = f"{svc['url']}/{docs_route}"
-        gateway_route = f"http://localhost:8000/api/{docs_route}/"
+        gateway_route = f"http://localhost:8000/api/{docs_route}/" if svc["framework"] == "Express" else f"http://localhost:8000/api/{docs_route}"
         service_cards += f"""
         <div class="service-card" id="card-{key}" data-service="{key}">
             <div class="card-header" style="border-top:3px solid {svc['color']}">
