@@ -6,7 +6,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
 // Load env variables
-dotenv.config();
+dotenv.config({ path: '.env_room' });
 
 // Connect to database
 connectDB();

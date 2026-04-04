@@ -6,7 +6,7 @@ const restaurantRoutes = require('./src/routes/restaurantRoutes');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 
-dotenv.config();
+dotenv.config({ path: '.env_restaurant' });
 
 const app = express();
 const PORT = process.env.PORT || 8005;

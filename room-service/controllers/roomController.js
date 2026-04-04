@@ -70,7 +70,7 @@ exports.updateRoom = async (req, res) => {
       data.price = price;
     }
 
-    const room = await Room.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: true });
+    const room = await Room.findByIdAndUpdate(req.params.id, data, { returnDocument: 'after', runValidators: true });
 
     if (!room) return res.status(404).json({ message: "Room not found" });
 

@@ -67,7 +67,7 @@ exports.updateMenuItem = async (req, res) => {
         else query = { _id: param };
 
         const update = req.body;
-        const updated = await Menu.findOneAndUpdate(query, update, { new: true }).lean();
+        const updated = await Menu.findOneAndUpdate(query, update, { returnDocument: 'after' }).lean();
         if (!updated) return res.status(404).json({ message: 'Menu item not found' });
         return res.json(updated);
     } catch (err) {

@@ -34,7 +34,7 @@ roomSchema.pre("validate", async function () {
     const counter = await Counter.findOneAndUpdate(
       { id: "room" },
       { $inc: { seq: 1 } },
-      { new: true, upsert: true }
+      { returnDocument: 'after', upsert: true }
     );
 
     const seq = counter.seq || 1;
