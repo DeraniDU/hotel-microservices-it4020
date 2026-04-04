@@ -1,15 +1,22 @@
-from motor.motor_asyncio import AsyncIOMotorClient
+import os
+from pathlib import Path
+
 from dotenv import load_dotenv
 from fastapi import HTTPException
-import os
+from motor.motor_asyncio import AsyncIOMotorClient
 
-load_dotenv(".env_guest")
+_env_dir = Path(__file__).resolve().parent
+load_dotenv(_env_dir / ".env")
+load_dotenv(_env_dir / ".env_guest", override=True)
 
 MONGO_URL = os.getenv("MONGO_URL")
 DATABASE_NAME = os.getenv("DATABASE_NAME")
 
 if not MONGO_URL:
-    raise RuntimeError("MONGO_URL is not set in .env")
+    raise RuntimeError(
+        "MONGO_URL is not set. Add it to guest-service/.env or .env_guest "
+        "(and DATABASE_NAME if required)."
+    )
 
 client = AsyncIOMotorClient(MONGO_URL, serverSelectionTimeoutMS=5000)
 db = client[DATABASE_NAME]

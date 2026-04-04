@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -5,8 +6,8 @@ const connectDB = require("./config/db");
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
-// Load env variables
-dotenv.config({ path: '.env_room' });
+dotenv.config({ path: path.join(__dirname, ".env") });
+dotenv.config({ path: path.join(__dirname, ".env_room"), override: true });
 
 // Connect to database
 connectDB();

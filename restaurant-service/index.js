@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
@@ -6,7 +7,8 @@ const restaurantRoutes = require('./src/routes/restaurantRoutes');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 
-dotenv.config({ path: '.env_restaurant' });
+dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config({ path: path.join(__dirname, '.env_restaurant'), override: true });
 
 const app = express();
 const PORT = process.env.PORT || 8005;
