@@ -85,9 +85,16 @@ SERVICES = {
         "color": "#8b5cf6",
         "icon": "👷",
         "start_cmd": "cd staff-service && python3 -m uvicorn main:app --host 0.0.0.0 --port 8006 --reload",
-        "docs_url": "/docs",
+        "docs_url": "/staff",
     },
 }
+
+# Public gateway path segment (may differ from registry key, e.g. staff → /staffs).
+def gateway_path_for_service(service_key: str) -> str:
+    if service_key == "staff":
+        return "staffs"
+    return service_key
+
 
 # ── App ────────────────────────────────────────────────────────────────────────
 app = FastAPI(
@@ -104,7 +111,7 @@ All routes are proxied through **port 8000**.
 | Booking     | /bookings/...    | 8003        |
 | Payment     | /payments/...    | 8004        |
 | Restaurant  | /restaurant/...  | 8005        |
-| Staff       | /staff/...       | 8006        |
+| Staff       | /staffs/...      | 8006        |
 """,
     version="2.0.0",
 )
@@ -133,8 +140,13 @@ def build_dashboard_html() -> str:
         lang_badge = f'<span class="badge badge-lang">{svc["language"]}</span>'
         db_badge = f'<span class="badge badge-db">{svc["db"]}</span>'
         docs_route = docs_routes.get(key, 'docs')
-        docs_url = f"{svc['url']}/{docs_route}"
-        gateway_route = f"http://localhost:8000/api/{docs_route}/" if svc["framework"] == "Express" else f"http://localhost:8000/api/{docs_route}"
+        docs_url = f"{svc['url']}{svc.get('docs_url', '/' + docs_route)}"
+        if key == "staff":
+            gateway_route = f"http://localhost:8000/{gateway_path_for_service(key)}"
+        elif svc["framework"] == "Express":
+            gateway_route = f"http://localhost:8000/api/{docs_route}/"
+        else:
+            gateway_route = f"http://localhost:8000/api/{docs_route}"
         service_cards += f"""
         <div class="service-card" id="card-{key}" data-service="{key}">
             <div class="card-header" style="border-top:3px solid {svc['color']}">
@@ -142,7 +154,7 @@ def build_dashboard_html() -> str:
                     <span class="service-icon">{svc['icon']}</span>
                     <div>
                         <h3 class="service-name">{svc['display_name']}</h3>
-                        <span class="service-url">localhost:{svc['port']}/{key}</span>
+                        <span class="service-url">localhost:{svc['port']}/{gateway_path_for_service(key)}</span>
                     </div>
                     <span class="status-badge" id="status-{key}">
                         <span class="status-dot" id="dot-{key}"></span>
@@ -508,6 +520,10 @@ def build_dashboard_html() -> str:
       <span class="info-value">http://localhost:8000/{{"{{"}}service{{"}}"}}/...</span>
     </div>
     <div class="info-item">
+      <span class="info-label">Staff Service API (via gateway)</span>
+      <span class="info-value">http://localhost:8000/staffs</span>
+    </div>
+    <div class="info-item">
       <span class="info-label">API Gateway Docs</span>
       <span class="info-value"><a href="/docs" style="color:#818cf8">http://localhost:8000/docs</a></span>
     </div>
@@ -587,7 +603,7 @@ def gateway_info():
         "services": {
             key: {
                 "display_name": svc["display_name"],
-                "gateway_url": f"http://localhost:8000/{key}",
+                "gateway_url": f"http://localhost:8000/{gateway_path_for_service(key)}",
                 "direct_url": svc["url"],
                 "port": svc["port"],
             }
@@ -606,7 +622,7 @@ def list_services():
             "description": svc["description"],
             "port": svc["port"],
             "direct_url": svc["url"],
-            "gateway_url": f"http://localhost:8000/{key}",
+            "gateway_url": f"http://localhost:8000/{gateway_path_for_service(key)}",
             "language": svc["language"],
             "framework": svc["framework"],
             "db": svc["db"],
