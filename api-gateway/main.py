@@ -134,7 +134,7 @@ def build_dashboard_html() -> str:
         db_badge = f'<span class="badge badge-db">{svc["db"]}</span>'
         docs_route = docs_routes.get(key, 'docs')
         docs_url = f"{svc['url']}/{docs_route}"
-        gateway_route = f"http://localhost:8000/api/{docs_route}"
+        gateway_route = f"http://localhost:8000/api/{docs_route}/"
         service_cards += f"""
         <div class="service-card" id="card-{key}" data-service="{key}">
             <div class="card-header" style="border-top:3px solid {svc['color']}">
@@ -704,6 +704,11 @@ async def proxy(service: str, request: Request, path: str = ""):
         res_headers.pop("content-encoding", None)
         res_headers.pop("content-length", None)
         
+        if response.status_code in (301, 302, 303, 307, 308) and "location" in res_headers:
+            loc = res_headers["location"]
+            if incoming_path.startswith("/api/") and loc.startswith(f"/{service}/"):
+                res_headers["location"] = f"/api{loc}"
+        
         return Response(
             content=response.content,
             status_code=response.status_code,
@@ -712,7 +717,7 @@ async def proxy(service: str, request: Request, path: str = ""):
     except httpx.ConnectError:
         raise HTTPException(
             status_code=503,
-            detail=f"Service '{service}' is not reachable. Is it running on port {SERVICES[service]['port']}?"
+            detail=f"Service '{service}' is not reachable. Is it running on port {SERVICES[real_service]['port']}?"
         )
     except httpx.TimeoutException:
         raise HTTPException(status_code=504, detail=f"Service '{service}' timed out.")
